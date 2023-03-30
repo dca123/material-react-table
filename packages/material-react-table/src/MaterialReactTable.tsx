@@ -290,10 +290,13 @@ export type MRT_TableState<TData extends Record<string, any> = {}> = Prettify<
   }
 >;
 
-export type MRT_ColumnDef<TData extends Record<string, any> = {}> =
+export type MRT_ColumnDef<
+  TData extends Record<string, any> = {},
+  TValue = unknown,
+> =
   // Prettify<
   Omit<
-    ColumnDef<TData, unknown>,
+    ColumnDef<TData, TValue>,
     | 'accessorKey'
     | 'aggregatedCell'
     | 'aggregationFn'
@@ -312,7 +315,7 @@ export type MRT_ColumnDef<TData extends Record<string, any> = {}> =
       table: MRT_TableInstance<TData>;
     }) => ReactNode;
     Cell?: (props: {
-      cell: MRT_Cell<TData>;
+      cell: MRT_Cell<TData, TValue>;
       renderedCellValue: number | string | ReactNode;
       column: MRT_Column<TData>;
       row: MRT_Row<TData>;
@@ -539,8 +542,11 @@ export type MRT_Row<TData extends Record<string, any> = {}> = Prettify<
   }
 >;
 
-export type MRT_Cell<TData extends Record<string, any> = {}> = Prettify<
-  Omit<Cell<TData, unknown>, 'column' | 'row'> & {
+export type MRT_Cell<
+  TData extends Record<string, any> = {},
+  TValue = unknown,
+> = Prettify<
+  Omit<Cell<TData, TValue>, 'column' | 'row'> & {
     column: MRT_Column<TData>;
     row: MRT_Row<TData>;
   }
@@ -1138,3 +1144,39 @@ const MaterialReactTable = <TData extends Record<string, any> = {}>({
 };
 
 export default MaterialReactTable;
+
+export const createMRTColumnHelper = <TData extends Record<string, any>>() => {
+  return {
+    accessor: <K extends keyof TData>(
+      accessor: K,
+      column: Omit<
+        MRT_ColumnDef<TData, TData[K]>,
+        'accessorKey' | 'accessorFn'
+      >,
+    ): MRT_ColumnDef<TData, TData[K]> => {
+      return typeof accessor === 'function'
+        ? ({
+            ...column,
+            accessorFn: accessor,
+          } as any)
+        : {
+            ...column,
+            accessorKey: accessor,
+          };
+    },
+    // display: (column) => column as ColumnDef<TData, unknown>,
+    // group: (column) => column as ColumnDef<TData, unknown>,
+  };
+};
+
+// type Person = {
+//   name: string;
+//   age: number;
+// };
+
+// const helper = createMRTColumnHelper<Person>();
+
+// const x = helper.accessor('age', {
+//   header: 'Name',
+//   Cell: ({ cell }) => <>{cell.getValue()}</>,
+// });

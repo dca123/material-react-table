@@ -3,6 +3,7 @@ import { Meta, Story } from '@storybook/react';
 import MaterialReactTable, {
   type MaterialReactTableProps,
   type MRT_ColumnDef,
+  createMRTColumnHelper,
 } from 'material-react-table';
 import { faker } from '@faker-js/faker';
 
@@ -26,12 +27,13 @@ interface Person {
   address: string;
 }
 
+const helper = createMRTColumnHelper<Person>();
+
 Default.args = {
   columns: [
-    {
+    helper.accessor('firstName', {
       header: 'First Name',
-      accessorKey: 'firstName',
-    },
+    }),
     {
       header: 'Last Name',
       accessorKey: 'lastName',
