@@ -32,7 +32,7 @@ const helper = createMRTColumnHelper<Person>();
 Default.args = {
   columns: [
     helper.accessor('firstName', {
-      header: 'First Name',
+      header: 'First Name with Accessor ',
     }),
     {
       header: 'Last Name',
